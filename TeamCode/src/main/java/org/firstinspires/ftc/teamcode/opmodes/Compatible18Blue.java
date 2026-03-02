@@ -33,8 +33,8 @@ import dev.nextftc.ftc.NextFTCOpMode;
 import dev.nextftc.ftc.components.BulkReadComponent;
 
 @Autonomous
-public class Blue18 extends NextFTCOpMode {
-    public Blue18(){
+public class Compatible18Blue extends NextFTCOpMode {
+    public Compatible18Blue(){
         addComponents(
                 new SubsystemComponent(
                         Hood.INSTANCE,
@@ -57,13 +57,12 @@ public class Blue18 extends NextFTCOpMode {
     private final Pose gatePose = new Pose(12,63.5, Math.toRadians(140));
     private final Pose clearGatePose = new Pose(12,59, Math.toRadians(120));
     private final Pose shoot2Pose = new Pose(51,93, Math.toRadians(135));
-    private final Pose intakeFarPose = new Pose(9,36, Math.toRadians(180));
     private final Pose intakeClosePose = new Pose(15,84, Math.toRadians(180));
     private final Pose leavePose = new Pose(57,108, Math.toRadians(150));
 
 
 
-    private PathChain shoot1,intakeMid, shoot2, gate1, clear1, shoot3, gate2, clear2, shoot4, intakeFar, shoot5,intakeClose,leave;
+    private PathChain shoot1,intakeMid, shoot2, gate1, clear1, shoot3, gate2, clear2, shoot4, intakeClose,leave;
 
     public void buildPaths() {
         shoot1 = PedroComponent.follower().pathBuilder().addPath(new BezierLine(startPose,shootPose))
@@ -81,8 +80,8 @@ public class Blue18 extends NextFTCOpMode {
         clear1 = PedroComponent.follower().pathBuilder().addPath(new BezierLine(gatePose,clearGatePose))
                 .setLinearHeadingInterpolation(gatePose.getHeading(), clearGatePose.getHeading())
                 .build();
-        shoot3 = PedroComponent.follower().pathBuilder().addPath(new BezierCurve(clearGatePose, new Pose(48,63),shoot2Pose))
-                .setLinearHeadingInterpolation(clearGatePose.getHeading(), shoot2Pose.getHeading())
+        shoot3 = PedroComponent.follower().pathBuilder().addPath(new BezierCurve(clearGatePose, new Pose(48,63),shootPose))
+                .setLinearHeadingInterpolation(clearGatePose.getHeading(), shootPose.getHeading())
                 .build();
         gate2 = PedroComponent.follower().pathBuilder().addPath(new BezierCurve(shootPose, new Pose(48,63),gatePose))
                 .setLinearHeadingInterpolation(shootPose.getHeading(), gatePose.getHeading())
@@ -90,16 +89,10 @@ public class Blue18 extends NextFTCOpMode {
         clear2 = PedroComponent.follower().pathBuilder().addPath(new BezierLine(gatePose,clearGatePose))
                 .setLinearHeadingInterpolation(gatePose.getHeading(), clearGatePose.getHeading())
                 .build();
-        shoot4 = PedroComponent.follower().pathBuilder().addPath(new BezierCurve(clearGatePose, new Pose(48,63),shoot2Pose))
-                .setLinearHeadingInterpolation(clearGatePose.getHeading(), shoot2Pose.getHeading())
+        shoot4 = PedroComponent.follower().pathBuilder().addPath(new BezierCurve(clearGatePose, new Pose(48,63),shootPose))
+                .setLinearHeadingInterpolation(clearGatePose.getHeading(), shootPose.getHeading())
                 .build();
-        intakeFar = PedroComponent.follower().pathBuilder().addPath(new BezierCurve(shoot2Pose, new Pose(39.000, 21.000), new Pose(48.000, 39.000),intakeFarPose))
-                .setLinearHeadingInterpolation(shoot2Pose.getHeading(), intakeFarPose.getHeading())
-                .build();
-        shoot5 = PedroComponent.follower().pathBuilder().addPath(new BezierLine(intakeFarPose,shootPose))
-                .setLinearHeadingInterpolation(intakeFarPose.getHeading(), shootPose.getHeading())
-                .build();
-        intakeClose = PedroComponent.follower().pathBuilder().addPath(new BezierCurve(shootPose,new Pose(45,78),intakeClosePose))
+        intakeClose = PedroComponent.follower().pathBuilder().addPath(new BezierLine(shootPose,intakeClosePose))
                 .setLinearHeadingInterpolation(shootPose.getHeading(), intakeClosePose.getHeading())
                 .build();
         leave = PedroComponent.follower().pathBuilder().addPath(new BezierLine(intakeClosePose,leavePose))
@@ -112,48 +105,37 @@ public class Blue18 extends NextFTCOpMode {
                 new ParallelGroup(
                         Intake.INSTANCE.runIntake,
                         Shooter.INSTANCE.runFlywheelClose,
-                        Turret.INSTANCE.runTurretToPosition(129),
+                        Turret.INSTANCE.runTurretToPosition(133),
                         new FollowPath(shoot1,true),
                         Hood.INSTANCE.close
 
                 ),
 
                 Transfer.INSTANCE.runTransfer(1.0),
-                new Delay(.5),
+                new Delay(.7),
                 Transfer.INSTANCE.runTransfer(0.0),
                 new FollowPath(intakeMid,true),
                 new FollowPath(shoot2,true),
                 Transfer.INSTANCE.runTransfer(1.0),
-                new Delay(.5),
+                new Delay(.7),
                 Transfer.INSTANCE.runTransfer(0.0),
                 new FollowPath(gate1,true),
 
                 new Delay(.5),
                 new FollowPath(clear1,true),
 
-                new Delay(1),
-                new ParallelGroup(
-                        new FollowPath(shoot3,true),
-                        Turret.INSTANCE.runTurretToPosition(0)
-                ),
+                new Delay(2),
+                new FollowPath(shoot3,true),
                 Transfer.INSTANCE.runTransfer(1.0),
-                new Delay(.5),
+                new Delay(.7),
                 Transfer.INSTANCE.runTransfer(0.0),
                 new FollowPath(gate2,true),
                 new Delay(.5),
                 new FollowPath(clear2,true),
-                new Delay(1),
+                new Delay(2),
                 new FollowPath(shoot4,true),
                 Transfer.INSTANCE.runTransfer(1.0),
-                new Delay(.5),
-                Transfer.INSTANCE.runTransfer(0.0),
-                new FollowPath(intakeFar,true),
-                new ParallelGroup(
-                        new FollowPath(shoot5,true),
-                        Turret.INSTANCE.runTurretToPosition(129)
-                ),
-                Transfer.INSTANCE.runTransfer(1.0),
-                new Delay(.5),
+                new Delay(.7),
                 Transfer.INSTANCE.runTransfer(0.0),
                 new FollowPath(intakeClose,true),
                 new ParallelGroup(
@@ -161,7 +143,7 @@ public class Blue18 extends NextFTCOpMode {
                         Turret.INSTANCE.runTurretToPosition(0)
                 ),
                 Transfer.INSTANCE.runTransfer(1.0),
-                new Delay(.5),
+                new Delay(.7),
                 Transfer.INSTANCE.runTransfer(0.0)
 
         );

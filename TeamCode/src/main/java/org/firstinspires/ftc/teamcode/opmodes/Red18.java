@@ -10,7 +10,6 @@ import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.teamcode.subsystems.Lift;
 import org.firstinspires.ftc.teamcode.utils.Data;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Hood;
@@ -33,33 +32,25 @@ import dev.nextftc.ftc.NextFTCOpMode;
 import dev.nextftc.ftc.components.BulkReadComponent;
 
 @Autonomous
-public class Blue18 extends NextFTCOpMode {
-    public Blue18(){
+public class Red18 extends NextFTCOpMode {
+    public Red18(){
         addComponents(
-                new SubsystemComponent(
-                        Hood.INSTANCE,
-                        Intake.INSTANCE,
-                        Shooter.INSTANCE,
-                        Transfer.INSTANCE,
-                        Turret.INSTANCE,
-                        Limelight.INSTANCE,
-                        Lift.INSTANCE
-                ),
+                new SubsystemComponent(Hood.INSTANCE, Intake.INSTANCE, Shooter.INSTANCE, Transfer.INSTANCE, Turret.INSTANCE, Limelight.INSTANCE),
                 BulkReadComponent.INSTANCE,
                 BindingsComponent.INSTANCE,
                 new PedroComponent(Constants::createFollower)
         );
     }
     TelemetryManager panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
-    private final Pose startPose = new Pose(28.5,128.5  , Math.toRadians(180));
-    private final Pose shootPose = new Pose(51,93, Math.toRadians(180));
-    private final Pose intakeMidPose = new Pose(12,58,Math.toRadians(180));
-    private final Pose gatePose = new Pose(12,63.5, Math.toRadians(140));
-    private final Pose clearGatePose = new Pose(12,59, Math.toRadians(120));
-    private final Pose shoot2Pose = new Pose(51,93, Math.toRadians(135));
-    private final Pose intakeFarPose = new Pose(9,36, Math.toRadians(180));
-    private final Pose intakeClosePose = new Pose(15,84, Math.toRadians(180));
-    private final Pose leavePose = new Pose(57,108, Math.toRadians(150));
+    private final Pose startPose = new Pose(28.5,128.5  , Math.toRadians(180)).mirror();
+    private final Pose shootPose = new Pose(51,93, Math.toRadians(180)).mirror();
+    private final Pose intakeMidPose = new Pose(12,58,Math.toRadians(180)).mirror();
+    private final Pose gatePose = new Pose(13.5,63.5, Math.toRadians(140)).mirror();
+    private final Pose clearGatePose = new Pose(13.5,59, Math.toRadians(120)).mirror();
+    private final Pose shoot2Pose = new Pose(51,93, Math.toRadians(135)).mirror();
+    private final Pose intakeFarPose = new Pose(9,36, Math.toRadians(180)).mirror();
+    private final Pose intakeClosePose = new Pose(15,83, Math.toRadians(180)).mirror();
+    private final Pose leavePose = new Pose(57,108, Math.toRadians(150)).mirror();
 
 
 
@@ -69,31 +60,31 @@ public class Blue18 extends NextFTCOpMode {
         shoot1 = PedroComponent.follower().pathBuilder().addPath(new BezierLine(startPose,shootPose))
                 .setLinearHeadingInterpolation(startPose.getHeading(), shootPose.getHeading())
                 .build();
-        intakeMid = PedroComponent.follower().pathBuilder().addPath(new BezierCurve(shootPose, new Pose(51,48),intakeMidPose))
+        intakeMid = PedroComponent.follower().pathBuilder().addPath(new BezierCurve(shootPose, new Pose(51,48).mirror(),intakeMidPose))
                 .setLinearHeadingInterpolation(shootPose.getHeading(), intakeMidPose.getHeading())
                 .build();
-        shoot2 = PedroComponent.follower().pathBuilder().addPath(new BezierCurve(intakeMidPose, new Pose(48,63),shootPose))
+        shoot2 = PedroComponent.follower().pathBuilder().addPath(new BezierCurve(intakeMidPose, new Pose(48,63).mirror(),shootPose))
                 .setLinearHeadingInterpolation(intakeMidPose.getHeading(), shootPose.getHeading())
                 .build();
-        gate1 = PedroComponent.follower().pathBuilder().addPath(new BezierCurve(shootPose, new Pose(48,63),gatePose))
+        gate1 = PedroComponent.follower().pathBuilder().addPath(new BezierCurve(shootPose, new Pose(48,63).mirror(),gatePose))
                 .setLinearHeadingInterpolation(shootPose.getHeading(), gatePose.getHeading())
                 .build();
         clear1 = PedroComponent.follower().pathBuilder().addPath(new BezierLine(gatePose,clearGatePose))
                 .setLinearHeadingInterpolation(gatePose.getHeading(), clearGatePose.getHeading())
                 .build();
-        shoot3 = PedroComponent.follower().pathBuilder().addPath(new BezierCurve(clearGatePose, new Pose(48,63),shoot2Pose))
+        shoot3 = PedroComponent.follower().pathBuilder().addPath(new BezierCurve(clearGatePose, new Pose(48,63).mirror(),shoot2Pose))
                 .setLinearHeadingInterpolation(clearGatePose.getHeading(), shoot2Pose.getHeading())
                 .build();
-        gate2 = PedroComponent.follower().pathBuilder().addPath(new BezierCurve(shootPose, new Pose(48,63),gatePose))
+        gate2 = PedroComponent.follower().pathBuilder().addPath(new BezierCurve(shootPose, new Pose(48,63).mirror(),gatePose))
                 .setLinearHeadingInterpolation(shootPose.getHeading(), gatePose.getHeading())
                 .build();
         clear2 = PedroComponent.follower().pathBuilder().addPath(new BezierLine(gatePose,clearGatePose))
                 .setLinearHeadingInterpolation(gatePose.getHeading(), clearGatePose.getHeading())
                 .build();
-        shoot4 = PedroComponent.follower().pathBuilder().addPath(new BezierCurve(clearGatePose, new Pose(48,63),shoot2Pose))
+        shoot4 = PedroComponent.follower().pathBuilder().addPath(new BezierCurve(clearGatePose, new Pose(48,63).mirror(),shoot2Pose))
                 .setLinearHeadingInterpolation(clearGatePose.getHeading(), shoot2Pose.getHeading())
                 .build();
-        intakeFar = PedroComponent.follower().pathBuilder().addPath(new BezierCurve(shoot2Pose, new Pose(39.000, 21.000), new Pose(48.000, 39.000),intakeFarPose))
+        intakeFar = PedroComponent.follower().pathBuilder().addPath(new BezierCurve(shoot2Pose, new Pose(39.000, 21.000).mirror(), new Pose(48.000, 39.000).mirror(),intakeFarPose))
                 .setLinearHeadingInterpolation(shoot2Pose.getHeading(), intakeFarPose.getHeading())
                 .build();
         shoot5 = PedroComponent.follower().pathBuilder().addPath(new BezierLine(intakeFarPose,shootPose))
@@ -112,7 +103,7 @@ public class Blue18 extends NextFTCOpMode {
                 new ParallelGroup(
                         Intake.INSTANCE.runIntake,
                         Shooter.INSTANCE.runFlywheelClose,
-                        Turret.INSTANCE.runTurretToPosition(129),
+                        Turret.INSTANCE.runTurretToPosition(-129),
                         new FollowPath(shoot1,true),
                         Hood.INSTANCE.close
 
@@ -150,7 +141,7 @@ public class Blue18 extends NextFTCOpMode {
                 new FollowPath(intakeFar,true),
                 new ParallelGroup(
                         new FollowPath(shoot5,true),
-                        Turret.INSTANCE.runTurretToPosition(129)
+                        Turret.INSTANCE.runTurretToPosition(-129)
                 ),
                 Transfer.INSTANCE.runTransfer(1.0),
                 new Delay(.5),
@@ -190,13 +181,13 @@ public class Blue18 extends NextFTCOpMode {
         if(!PedroComponent.follower().getPose().roughlyEquals(new Pose(0,0,0),5)){
             Data.endPose = PedroComponent.follower().getPose();
         }
-        telemetry.addData("endpose", Data.endPose.getX() + ", "+ Data.endPose.getY()+ ", "+ Data.endPose.getHeading());
         panelsTelemetry.update(telemetry);
 
     }
 
     @Override
     public void onStop(){
+
         Intake.INSTANCE.stopIntake.schedule();
         Shooter.INSTANCE.stopFlywheel.schedule();
     }

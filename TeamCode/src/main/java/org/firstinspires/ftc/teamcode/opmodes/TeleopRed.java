@@ -31,26 +31,18 @@ import dev.nextftc.ftc.components.BulkReadComponent;
 import dev.nextftc.hardware.driving.DriverControlledCommand;
 import dev.nextftc.hardware.impl.MotorEx;
 
-@TeleOp (name = "Teleop Blue")
-public class Teleop extends NextFTCOpMode {
-    public Teleop(){
+@TeleOp
+public class TeleopRed extends NextFTCOpMode {
+    public TeleopRed(){
         addComponents(
-                new SubsystemComponent(
-                        Shooter.INSTANCE,
-                        Intake.INSTANCE,
-                        Transfer.INSTANCE,
-                        Turret.INSTANCE,
-                        Hood.INSTANCE,
-                        Limelight.INSTANCE,
-                        Lift.INSTANCE
-                ),
+                new SubsystemComponent(Shooter.INSTANCE, Intake.INSTANCE, Transfer.INSTANCE, Turret.INSTANCE, Hood.INSTANCE, Limelight.INSTANCE, Lift.INSTANCE),
                 BulkReadComponent.INSTANCE,
                 BindingsComponent.INSTANCE,
                 new PedroComponent(Constants::createFollower)
         );
 
     }
-
+    //public static Pose endPose;
     private MotorEx frontLeftMotor;
     private MotorEx frontRightMotor;
     private MotorEx backLeftMotor;
@@ -58,7 +50,6 @@ public class Teleop extends NextFTCOpMode {
 
     private boolean runShooter = false;
     public double transferPower = 0.5;
-
 
     public static Follower getFollower(){
         return PedroComponent.follower();
@@ -70,7 +61,6 @@ public class Teleop extends NextFTCOpMode {
                 Gamepads.gamepad1().rightStickX().negate(),
                 Gamepads.gamepad1().leftStickX().map(value -> 0.5*value).negate()
         );
-        Turret.alignment=true;
         driverControlled.schedule();
         Lift.INSTANCE.holdPlate().schedule();
         Gamepads.gamepad1().circle().whenBecomesTrue(Intake.INSTANCE.runIntake);
@@ -83,7 +73,6 @@ public class Teleop extends NextFTCOpMode {
         //Gamepads.gamepad1().dpadDown().whenBecomesTrue(Shooter.INSTANCE.runFlywheelFar.and(Hood.INSTANCE.up));
         Gamepads.gamepad1().rightBumper().whenBecomesTrue(Transfer.INSTANCE.runTransfer(1.0)).whenBecomesFalse(Transfer.INSTANCE.runTransfer(0.0));
         Gamepads.gamepad2().circle().whenBecomesTrue(Lift.INSTANCE.lift()).whenBecomesFalse(Lift.INSTANCE.holdLift());
-
     }
     @Override
     public void onInit(){
@@ -93,19 +82,19 @@ public class Teleop extends NextFTCOpMode {
         frontRightMotor = new MotorEx("FR");
         backLeftMotor = new MotorEx("BL").reversed();
         backRightMotor = new MotorEx("BR");
-
-        Calculations.goalPose=Calculations.blueGoalPose;
-        if (Data.endPose != null) {
+        if(Data.endPose!=null){
+            telemetry.addData("endpose", Data.endPose.getX() + ", "+ Data.endPose.getY()+ ", "+ Data.endPose.getHeading());
             PedroComponent.follower().setStartingPose(Data.endPose);
-            telemetry.addData("X", Data.endPose.getX());
-            telemetry.addData("Y", Data.endPose.getY());
-            telemetry.addData("heading", Data.endPose.getHeading());
-        } else {
-            PedroComponent.follower().setStartingPose(new Pose(72,72,Math.toRadians(90)));
         }
+        else PedroComponent.follower().setPose(new Pose(72,72, Math.toRadians(90)));
+        Turret.alignment=true;
+        Calculations.goalPose=Calculations.redGoalPose;
+        telemetry.addData("curr pose", PedroComponent.follower().getPose().getX() + ", "+ PedroComponent.follower().getPose().getY()+ ", "+ PedroComponent.follower().getPose().getHeading());
 
+        //telemetry.addData("X",PedroComponent.follower().getPose().getX());
+        //telemetry.addData("Y",PedroComponent.follower().getPose().getY());
         telemetry.update();
-        //Limelight.INSTANCE.limelight.pipelineSwitch(1);
+        Limelight.INSTANCE.limelight.pipelineSwitch(1);
     }
     @Override
     public void onUpdate(){
@@ -118,9 +107,7 @@ public class Teleop extends NextFTCOpMode {
             runShooter = false;
             Turret.alignment = false;
         }
-        //if(gamepad2.cross){
-        //    PedroComponent.follower().setPose(new Pose(135,9,Math.toRadians(90)));
-        //}
+
         //if(gamepad1.right_bumper) Transfer.INSTANCE.runTransfer(transferPower).schedule();
         //else Transfer.INSTANCE.runTransfer(0.0).schedule();
         if(result.isValid()) {
@@ -149,7 +136,6 @@ public class Teleop extends NextFTCOpMode {
 
             }
         }
-
         //telemetry.addData("distance", Math.hypot(Calculations.redGoalPose.getY()-PedroComponent.follower().getPose().getY(),Calculations.redGoalPose.getX()-PedroComponent.follower().getPose().getX()));
         telemetry.addData("x y heading", PedroComponent.follower().getPose().getX() + ", "+ PedroComponent.follower().getPose().getY()+ ", "+ PedroComponent.follower().getPose().getHeading());
         telemetry.addData("Commands", CommandManager.INSTANCE.snapshot());
@@ -160,6 +146,6 @@ public class Teleop extends NextFTCOpMode {
         Turret.alignment=false;
         CommandManager.INSTANCE.cancelAll();
         Shooter.INSTANCE.stopFlywheel.schedule();
-        //Poses.endPose=PedroComponent.follower().getPose();
+        Data.endPose=PedroComponent.follower().getPose();
     }
 }

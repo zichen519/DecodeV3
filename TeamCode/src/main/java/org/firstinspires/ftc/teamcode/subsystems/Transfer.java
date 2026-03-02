@@ -4,8 +4,12 @@ import androidx.annotation.NonNull;
 
 import com.bylazar.configurables.annotations.Configurable;
 
+import java.util.Set;
+
 import dev.nextftc.control.ControlSystem;
 import dev.nextftc.core.commands.Command;
+import dev.nextftc.core.commands.delays.Delay;
+import dev.nextftc.core.commands.groups.SequentialGroup;
 import dev.nextftc.core.commands.utility.LambdaCommand;
 import dev.nextftc.core.subsystems.Subsystem;
 import dev.nextftc.ftc.ActiveOpMode;
@@ -18,15 +22,37 @@ public class Transfer implements Subsystem {
     private Transfer(){}
 
     public double power = 0.5;
-    public static double d=0.0007;
+
 
     private MotorEx transfer = new MotorEx("transfer");
 
     public Command runTransfer(double power){
         return new SetPower(transfer,power).requires(this);
     }
+    /*
     public Command dynamicTransfer(){
         return new SetPower(transfer, power).requires(this);
+    }
+    */
+    public Command fireClose(){
+        return new SequentialGroup(
+                new SetPower(transfer,0.9),
+                new Delay(1),
+                new SetPower(transfer,0.0)
+        );
+    }
+
+    public Command fireFar(){
+        return new SequentialGroup(
+                new SetPower(transfer,1),
+                new Delay(0.5),
+                new SetPower(transfer,0.0),
+                new Delay(0.5),
+                new SetPower(transfer,1),
+                new Delay(0.5),
+                new SetPower(transfer,0)
+
+        );
     }
 
     @Override
@@ -36,8 +62,6 @@ public class Transfer implements Subsystem {
 
     @Override
     public void periodic(){
-
-        ActiveOpMode.telemetry().addData("Transfer velocity", transfer.getVelocity());
         ActiveOpMode.telemetry().addData("Transfer power", power);
 
     }

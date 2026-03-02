@@ -30,9 +30,9 @@ import dev.nextftc.extensions.pedro.FollowPath;
 import dev.nextftc.extensions.pedro.PedroComponent;
 import dev.nextftc.ftc.NextFTCOpMode;
 import dev.nextftc.ftc.components.BulkReadComponent;
-@Autonomous (name = "Blue Far")
-public class CombinedAuto extends NextFTCOpMode {
-    public CombinedAuto(){
+@Autonomous
+public class RedFar extends NextFTCOpMode {
+    public RedFar(){
         addComponents(
                 new SubsystemComponent(Hood.INSTANCE, Intake.INSTANCE, Shooter.INSTANCE, Transfer.INSTANCE, Turret.INSTANCE, Limelight.INSTANCE),
                 BulkReadComponent.INSTANCE,
@@ -41,14 +41,14 @@ public class CombinedAuto extends NextFTCOpMode {
         );
     }
     TelemetryManager panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
-    private final Pose startPose = new Pose(57,8.5  , Math.toRadians(90));
-    private final Pose clearPose = new Pose(57,11, Math.toRadians(90));
-    private final Pose preIntakePose = new Pose(36,36,Math.toRadians(180));
-    private final Pose intakePose = new Pose(9,36, Math.toRadians(180));
-    private final Pose shootPose = new Pose(57.5,15, Math.toRadians(180));
-    private final Pose intakeHumanPose = new Pose(9,8, Math.toRadians(180));
-    private final Pose intake2Pose = new Pose(9,12, Math.toRadians(180));
-    private final Pose leavePose = new Pose(51,24, Math.toRadians(180));
+    private final Pose startPose = new Pose(57,8.5  , Math.toRadians(90)).mirror();
+    private final Pose clearPose = new Pose(57,11, Math.toRadians(90)).mirror();
+    private final Pose preIntakePose = new Pose(36,36,Math.toRadians(180)).mirror();
+    private final Pose intakePose = new Pose(9,36, Math.toRadians(180)).mirror();
+    private final Pose shootPose = new Pose(57.5,15, Math.toRadians(180)).mirror();
+    private final Pose intakeHumanPose = new Pose(9,8, Math.toRadians(180)).mirror();
+    private final Pose intake2Pose = new Pose(9,12, Math.toRadians(180)).mirror();
+    private final Pose leavePose = new Pose(51,24, Math.toRadians(180)).mirror();
 
 
 
@@ -58,7 +58,7 @@ public class CombinedAuto extends NextFTCOpMode {
         clear = PedroComponent.follower().pathBuilder().addPath(new BezierLine(startPose,clearPose))
                 .setLinearHeadingInterpolation(startPose.getHeading(), clearPose.getHeading())
                 .build();
-        preIntake = PedroComponent.follower().pathBuilder().addPath(new BezierCurve(clearPose, new Pose(50,36),preIntakePose))
+        preIntake = PedroComponent.follower().pathBuilder().addPath(new BezierCurve(clearPose, new Pose(50,36).mirror(),preIntakePose))
                 .setLinearHeadingInterpolation(clearPose.getHeading(), preIntakePose.getHeading())
                 .build();
         intake = PedroComponent.follower().pathBuilder().addPath(new BezierLine(preIntakePose,intakePose))
@@ -96,10 +96,10 @@ public class CombinedAuto extends NextFTCOpMode {
                         new FollowPath(clear,true),
                         Intake.INSTANCE.runIntake,
                         Shooter.INSTANCE.runFlywheelFar,
-                        Turret.INSTANCE.runTurretToPosition(-65),
+                        Turret.INSTANCE.runTurretToPosition(75),
                         Hood.INSTANCE.up
                 ),
-                Transfer.INSTANCE.runTransfer(0.35),
+                Transfer.INSTANCE.runTransfer(0.3),
                 new Delay(1.5),
 
                 Transfer.INSTANCE.runTransfer(0.0),
@@ -107,28 +107,31 @@ public class CombinedAuto extends NextFTCOpMode {
                 new FollowPath(intake,true),
                 new ParallelGroup(
                         new FollowPath(shoot1,true),
-                        Turret.INSTANCE.runTurretToPosition(197)
+                        Turret.INSTANCE.runTurretToPosition(-188)
                 ),
                 new Delay(.25),
-                Transfer.INSTANCE.runTransfer(0.35),
+                Transfer.INSTANCE.runTransfer(0.3),
                 new Delay(1.5),
                 Transfer.INSTANCE.runTransfer(0.0),
                 new FollowPath(intake2,true),
+                new Delay(.5),
                 new FollowPath(shoot2,true),
                 new Delay(.25),
-                Transfer.INSTANCE.runTransfer(0.35),
+                Transfer.INSTANCE.runTransfer(0.3),
                 new Delay(1.5),
                 Transfer.INSTANCE.runTransfer(0.0),
                 new FollowPath(intake3,true),
+                new Delay(.5),
                 new FollowPath(shoot3,true),
                 new Delay(.25),
-                Transfer.INSTANCE.runTransfer(0.35),
+                Transfer.INSTANCE.runTransfer(0.3),
                 new Delay(1.5),
                 Transfer.INSTANCE.runTransfer(0.0),
                 new FollowPath(intake4,true),
+                new Delay(.5),
                 new FollowPath(shoot4,true),
                 new Delay(.25),
-                Transfer.INSTANCE.runTransfer(0.35),
+                Transfer.INSTANCE.runTransfer(0.3),
                 new Delay(1.5),
                 Transfer.INSTANCE.runTransfer(0.0),
                 new ParallelGroup(
@@ -159,15 +162,16 @@ public class CombinedAuto extends NextFTCOpMode {
     }
     @Override
     public void onUpdate(){
-        panelsTelemetry.addLine(CommandManager.INSTANCE.snapshot().toString());
         if(!PedroComponent.follower().getPose().roughlyEquals(new Pose(0,0,0),5)){
             Data.endPose = PedroComponent.follower().getPose();
         }
+        panelsTelemetry.addLine(CommandManager.INSTANCE.snapshot().toString());
         panelsTelemetry.update(telemetry);
     }
 
     @Override
     public void onStop(){
+
         Intake.INSTANCE.stopIntake.schedule();
         Shooter.INSTANCE.stopFlywheel.schedule();
     }

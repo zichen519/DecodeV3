@@ -1,27 +1,25 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import org.firstinspires.ftc.teamcode.commands.Calculations;
-
 import dev.nextftc.control.ControlSystem;
-import dev.nextftc.control.KineticState;
 import dev.nextftc.core.commands.Command;
+import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.subsystems.Subsystem;
 import dev.nextftc.ftc.ActiveOpMode;
-import dev.nextftc.hardware.controllable.MotorGroup;
-import dev.nextftc.hardware.controllable.RunToVelocity;
 import dev.nextftc.hardware.impl.CRServoEx;
 import dev.nextftc.hardware.impl.FeedbackCRServoEx;
-import dev.nextftc.hardware.impl.MotorEx;
-import dev.nextftc.hardware.impl.ServoEx;
-import dev.nextftc.hardware.positionable.SetPosition;
-import dev.nextftc.hardware.positionable.SetPositions;
+import dev.nextftc.hardware.powerable.SetPower;
 
 public class Lift implements Subsystem {
     public static final Lift INSTANCE = new Lift();
     private Lift(){}
 
-    //private FeedbackCRServoEx liftRight = new FeedbackCRServoEx("liftRight");
-    private CRServoEx liftLeft = new CRServoEx("liftLeft");
+    private FeedbackCRServoEx liftLeft = new FeedbackCRServoEx(0.01,() -> ActiveOpMode.hardwareMap().analogInput.get("lift1"), () -> ActiveOpMode.hardwareMap().crservo.get("liftL"));
+
+    private CRServoEx liftRight = new CRServoEx("liftR");
+    private double liftTarget = -38.5;
+    double totalAngle = 0.0; // This is your angle of the servo
+    double previousAngle = 0.0;
+
 
 
     private ControlSystem controller = ControlSystem.builder()
@@ -31,11 +29,40 @@ public class Lift implements Subsystem {
 
     @Override
     public void initialize(){
+        totalAngle=0.0;
+        previousAngle= 0.0;
+    }
 
+    public Command holdPlate(){
+        return new ParallelGroup(
+                new SetPower(liftLeft, 0.05)
+                //new SetPower(liftRight, -0.05)
+        );
+    }
+    public Command holdLift(){
+        return new ParallelGroup(
+                new SetPower(liftLeft, -0.2),
+                new SetPower(liftRight, 0.2)
+        );
+    }
+    public Command lift(){
+        return new ParallelGroup(
+                new SetPower(liftLeft, -0.9),
+                new SetPower(liftRight, 0.9)
+        );
     }
 
     @Override
     public void periodic(){
+        double currentAngle = liftLeft.getCurrentPosition();
+        double deltaAngle = currentAngle - previousAngle;
 
+        if (deltaAngle > Math.PI) deltaAngle -= 2 * Math.PI;
+        else if (deltaAngle < -Math.PI) deltaAngle += 2 * Math.PI;
+
+        totalAngle += deltaAngle;
+        previousAngle = currentAngle;
+        ActiveOpMode.telemetry().addLine("lift left power"+ liftLeft.getPower()+"lift right power"+ liftRight.getPower());
+        ActiveOpMode.telemetry().addData("angle",totalAngle);
     }
 }

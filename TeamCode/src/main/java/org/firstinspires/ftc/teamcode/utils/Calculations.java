@@ -1,6 +1,8 @@
-package org.firstinspires.ftc.teamcode.commands;
+package org.firstinspires.ftc.teamcode.utils;
 
 import com.pedropathing.geometry.Pose;
+
+import org.opencv.core.Mat;
 
 public class Calculations {
     public static Pose redGoalPose = new Pose(128.0, 132.0);
@@ -40,15 +42,16 @@ public class Calculations {
     }
 
     public static double getShooterRPM(double distance){
-        return 376.2412 * Math.pow(distance,0.284006);
+        double rpm = 0.0000310481*Math.pow(distance,4)-0.0100608* Math.pow(distance,3) +1.13175*Math.pow(distance,2)-47.18133*distance+1657.92985;
+        return Math.max(Math.min(rpm,1525),1000);
     }
 
     public static double getHoodAngle(double distance){
-        double angle = (4.28937*Math.pow(10,-7))*Math.pow(distance,3)-0.000111902*Math.pow(distance,2)+0.0129326*distance-0.32834;
-        return Math.max(Math.min(angle,0.4),0.0);
+        double angle = -0.000050098*(Math.pow(distance,2))+0.0125441*distance-0.314086;
+        return Math.max(Math.min(angle,0.47),0.0);
     }
 
     public static double getTransferSpeed(double distance){
-        return -0.00588235 * distance + 1.10588;
+        return -0.00636*distance + 1.1909;
     }
 }
